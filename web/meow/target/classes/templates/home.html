@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head><title>Home</title></head>
+<body>
+    <h1>Welcome, <span th:text="${username}">user</span>!</h1>
+    <a href="/logout">Logout</a>
+    <h2>Upload a PDF File</h2>
+    <form id="uploadForm" action="/home/extract-text" method="post" enctype="multipart/form-data">
+        <input type="file" id="pdfFile" name="file" accept=".pdf">
+        <button type="submit">Upload</button>
+    </form>
+    <h3>Extracted Text:</h3>
+    <pre id="output" style="white-space: pre-wrap; border: 1px solid #ccc; padding: 10px;"></pre>
+
+    <script>
+        document.getElementById("uploadForm").addEventListener("submit", async function (e) {
+            e.preventDefault(); // Prevent normal form submission
+
+            const fileInput = document.getElementById("pdfFile");
+            const file = fileInput.files[0];
+            if (!file) {
+                alert("Please select a file first.");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append("file", file);
+
+            try {
+                const response = await fetch("/home/extract-text", {
+                    method: "POST",
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.text) {
+                    document.getElementById("output").textContent = result.text;
+                } else {
+                    document.getElementById("output").textContent = "Error: " + (result.error || "Unknown error");
+                }
+            } catch (err) {
+                document.getElementById("output").textContent = "Upload failed: " + err.message;
+            }
+        });
+    </script>
+</body>
+</html>
