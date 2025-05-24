@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Signup</title>
+    <link rel="stylesheet" href="/styles.css" />
+</head>
+
+<body>
+<div class="login-box">
+    <h2>Signup</h2>
+
+    <!-- Show error message if signup failed -->
+    <p th:if="${param.error}" style="color: red;">User already exists.</p>
+
+    <form method="post" th:action="@{/signup}">
+        <input type="text" name="username" placeholder="Username" required />
+        <input type="email" name="email" placeholder="Email" required />
+        <input type="password" name="password" placeholder="Password" required />
+
+        <button type="submit">Signup</button>
+
+        <br><br>
+        <p class="signup-text">
+            Already have an account? <a th:href="@{/login}" style="text-decoration:none;">Login</a>
+        </p>
+    </form>
+</div>
+</body>
+</html>

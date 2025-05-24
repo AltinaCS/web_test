@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Welcome</title>
+    <link rel="stylesheet" th:href="@{/styles.css}">
+</head>
+
+<body>
+<div class="login-box">
+    <h2>Welcome, <span th:text="${username}">User</span></h2>
+    <p>You are logged in.</p>
+    <br><br>
+    <form th:action="@{/logout}" method="get">
+        <button type="submit">Logout</button>
+    </form>
+</div>
+
+<div class="toast-container" id="toast-container"></div>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    [[# th:if="${messages}"]]
+    [[# th:each="msg : ${messages}"]]
+    const toast = document.createElement('div');
+    toast.className = 'toast toast-[[${msg.type}]]';
+    toast.textContent = [[${msg.text}]];
+    document.getElementById('toast-container').appendChild(toast);
+
+    setTimeout(() => {
+        toast.classList.add('fade-out');
+        setTimeout(() => toast.remove(), 500);
+    }, 3000);
+    [[/]]
+    [[/]]
+    /*]]>*/
+</script>
+</body>
+
+</html>
+
+
