@@ -14,7 +14,6 @@ public class UserStore {
         // Hash the password before storing
         String hashedPassword = BCrypt.hashpw(plainPassword, BCrypt.gensalt(12));
         users.put(username, new User(username, email, hashedPassword));
-        System.out.println(hashedPassword);
         return true;
     }
 

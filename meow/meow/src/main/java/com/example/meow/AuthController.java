@@ -38,7 +38,20 @@ public class AuthController {
     }
 
     @GetMapping("/login")
-    public String loginPage() {
+    public String loginPage(HttpServletRequest request) {
+        // Check if the user is already logged in
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie c : cookies) {
+                if (c.getName().equals("SESSION_TOKEN")) {
+                    String user = UserStore.getUsernameFromToken(c.getValue());
+                    if (user != null) {
+                        request.setAttribute("username", user);
+                        return "test";
+                    }
+                }
+            }
+        }
         return "login";
     }
 
