@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Forget Password</title>
+    <link rel="stylesheet" th:href="@{/styles.css}">
+</head>
+<body>
+
+<div class="register-box">
+    <h2>Forget-Password</h2>
+    <form th:action="@{/forgetpwd}" method="post">
+        <div class="form-group">
+            <input type="email" name="email" placeholder="Email" required />
+            <div th:if="${error}" th:text="${error}" class="error-message"></div>
+        </div>
+
+        <button type="submit" class="register-btn">Submit</button>
+    </form>
+</div>
+
+</body>
+</html>

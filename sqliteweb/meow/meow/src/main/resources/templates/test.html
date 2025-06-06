@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>AI Biography</title>
+  <link rel="stylesheet" th:href="@{/chat.css}">
+</head>
+<body>
+<!-- 側邊欄開關按鈕 -->
+<button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
+
+<div class="header-buttons">
+  <!-- 太陽月亮切換模式 -->
+  <button onclick="toggleMode()">
+    <span class="mode-icon" id="modeIcon">🌙</span>
+  </button>
+  <!-- 登入登出按鈕 -->
+  <form method="post" th:action="@{/logout}">
+    <button type="submit">Logout</button>
+  </form>
+</div>
+
+<div class="container">
+  <!-- 側邊欄 -->
+  <div class="sidebar" id="sidebar">
+    <h3>歷史紀錄</h3>
+    <ul id="historyList"></ul>
+  </div>
+
+  <!-- 聊天區域 -->
+  <div class="chat-area" id="chatArea">
+    <h2>AI Biography</h2>
+    <div class="chat-box" id="chatBox"></div>
+    <div class="input-area">
+      <input type="text" id="userInput" placeholder="輸入訊息..." />
+      <button onclick="sendMessage()">發送</button>
+      <!-- 加號按鈕用來上傳檔案 -->
+      <button class="upload-btn" onclick="document.getElementById('fileInput').click()">+</button>
+      <input type="file" id="fileInput" style="display: none;" onchange="uploadFile()"/>
+    </div>
+  </div>
+</div>
+
+<script>
+  let messages = [];
+  let history = [];
+  let loggedIn = false;
+
+  // 切換深色與淺色模式
+  function toggleMode() {
+    const body = document.body;
+    body.classList.toggle('light-mode');
+    const modeIcon = document.getElementById('modeIcon');
+    if (body.classList.contains('light-mode')) {
+      modeIcon.textContent = '🌞';
+    } else {
+      modeIcon.textContent = '🌙';
+    }
+  }
+
+  function sendMessage() {
+    const input = document.getElementById('userInput');
+    const message = input.value.trim();
+    if (!message) return;
+
+    messages.push({ role: 'user', content: message });
+    updateChatBox();
+
+    // 模擬 AI 回應
+    setTimeout(() => {
+      const aiMessage = { role: 'ai', content: ` ${message}` };
+      messages.push(aiMessage);
+      updateChatBox();
+      history.push(message);
+      updateHistory();
+    }, 1000);
+
+    input.value = '';
+  }
+
+  function updateChatBox() {
+    const chatBox = document.getElementById('chatBox');
+    chatBox.innerHTML = '';
+    messages.forEach(msg => {
+      chatBox.innerHTML += `<div class="message ${msg.role}">${msg.role === 'user' ? '你' : 'AI'}: ${msg.content}</div>`;
+    });
+  }
+
+  function updateHistory() {
+    const historyList = document.getElementById('historyList');
+    historyList.innerHTML = '';
+    history.forEach(msg => {
+      historyList.innerHTML += `<li>${msg}</li>`;
+    });
+  }
+
+  function logout() {
+    messages = [];
+    history = [];
+    updateChatBox();
+    updateHistory();
+  }
+
+  function uploadFile() {
+  const fileInput = document.getElementById('fileInput');
+  const file = fileInput.files[0];
+
+  if (!file) {
+    alert("請選擇一個檔案");
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("file", file);
+
+  fetch("/api/resume/upload", {
+    method: "POST",
+    body: formData
+  })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error("上傳失敗！");
+      }
+      return response.json();
+    })
+    .then(data => {
+      // 將回傳結果顯示在 chatBox
+      const aiMessage = {
+  role: 'ai',
+  content: `
+    檔名：${data.filename}
+    狀態：${data.status}
+    備註：${data.note}
+    擷取內容：
+    ${data.extractedText}
+  `
+};
+      messages.push(aiMessage);
+      updateChatBox();
+    })
+    .catch(error => {
+      console.error("發生錯誤：", error);
+      const aiMessage = { role: 'ai', content: "⚠️ 履歷上傳失敗，請稍後再試。" };
+      messages.push(aiMessage);
+      updateChatBox();
+    });
+
+  // 重置輸入欄
+  fileInput.value = "";
+}
+
+  function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const chatArea = document.getElementById('chatArea');
+      const toggleBtn = document.querySelector('.sidebar-toggle');
+
+      const isOpen = sidebar.classList.toggle('open');
+      chatArea.style.marginLeft = isOpen ? '270px' : '0';
+      toggleBtn.style.left = isOpen ? '250px' : '0';
+  }
+</script>
+</body>
+</html>
